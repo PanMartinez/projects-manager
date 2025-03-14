@@ -1,0 +1,43 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = [
+  "poetry-core>=1",
+]
+
+[tool.poetry]
+name = "projects_manager"
+version = "0.1.0"
+description = ""
+authors = ["PanMartinez <marcinplotka88@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = {extras = ["standard"], version = "^0.115.11"}
+pyjwt = "^2.10.1"
+psycopg2-binary = "^2.9.10"
+sqlalchemy = "2.0.39"
+alembic = "^1.14.0"
+pydantic = "2.10.6"
+pydantic_settings = "^2.6.1"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-dotenv = "^1.0.1"
+mypy = "^1.15.0"
+types-passlib = "^1.7.7.20240819"
+types-psycopg2  = "^2.9.21.20250121"
+httpx = "^0.28.1"
+pytest = "^8.3.5"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "^4.1.0"
+
+[tool.mypy]
+python_version = "3.13"
+strict_optional = true
+files = [
+  ".",
+]
+strict_equality = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
