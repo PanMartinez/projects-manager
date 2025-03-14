@@ -1,11 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from projects_manager.config.db import engine, SessionLocal
 from projects_manager.config.settings import get_settings
+from projects_manager.domain.common.models import Base
 
 
 def get_application() -> FastAPI:
     application = FastAPI()
+    Base.metadata.create_all(bind=engine)
     application.add_middleware(
         CORSMiddleware,
         allow_origins=get_settings().allowed_hosts,
@@ -17,3 +20,13 @@ def get_application() -> FastAPI:
 
 
 app = get_application()
+
+
+@app.middleware("http")
+def db_session_middleware(request: Request, call_next):
+    request.state.db = SessionLocal()
+    try:
+        response = call_next(request)
+    finally:
+        request.state.db.close()
+    return response
