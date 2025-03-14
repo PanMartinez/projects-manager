@@ -10,7 +10,9 @@ class Settings(BaseSettings):
     db_host: str
     db_port: int
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file="projects_manager/config/.env", env_file_encoding="utf-8"
+    )
 
     @property
     def database_url(self):
