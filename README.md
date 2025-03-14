@@ -2,9 +2,12 @@
 
 ## Overview
 
-This project is an API designed to manage **projects**, which in this context represent **plots of land**. The API allows users to create, read, update, list, and delete projects. Each project is analyzed using **satellite imagery** captured within a specified date range.
+This project is an API designed to manage **projects**, which in this context represent **plots of land**.
+The API allows users to create, read, update, list, and delete projects. Each project is analyzed using
+**satellite imagery** captured within a specified date range.
 
-The API is built using **FastAPI** and persists project data in a **relational database**. The architecture is designed to be extensible, allowing future additions of endpoints and functionalities.
+The API is built using **FastAPI** and persists project data in a **PostgresQL**. The architecture is designed to be
+extensible, allowing future additions of endpoints and functionalities.
 
 ## Features
 
