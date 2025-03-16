@@ -1,8 +1,10 @@
 from uuid import UUID
-from datetime import date
+from datetime import datetime
 from typing import Dict, Any, List
 from pydantic import field_validator
 from pydantic import BaseModel, Field
+
+from projects_manager.domain.common.schemas import OrmBaseModel
 
 
 class AreaOfInterest(BaseModel):
@@ -14,33 +16,36 @@ class AreaOfInterest(BaseModel):
 class ProjectBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=32)
     description: str | None = None
-    start_date: date
-    end_date: date
+    start_date: datetime
+    end_date: datetime
     area_of_interest: AreaOfInterest
 
+
+class ProjectDetailsSchema(ProjectBase, OrmBaseModel):
+    id: UUID
+
+
+class ProjectListSchema(BaseModel):
+    items: List[ProjectDetailsSchema]
+    total: int
+
+
+class ProjectActionBase(ProjectBase):
     @field_validator("end_date", mode="before")
     @classmethod
     def end_date_must_be_after_start_date(cls, v, values):
-        if "start_date" in values and v < values["start_date"]:
+        values_data = values.data
+
+        if "start_date" in values_data and v < values_data["start_date"].strftime(
+            "%Y-%m-%d"
+        ):
             raise ValueError("end_date must be after start_date")
         return v
 
 
-class Project(ProjectBase):
-    id: UUID
-
-    class Config:
-        orm_mode = True
-
-
-class ProjectList(BaseModel):
-    items: List[Project]
-    total: int
-
-
-class ProjectCreate(ProjectBase):
+class ProjectCreateSchema(ProjectActionBase):
     pass
 
 
-class ProjectUpdate(ProjectBase):
+class ProjectUpdateSchema(ProjectBase):
     pass

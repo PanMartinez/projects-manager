@@ -1,7 +1,7 @@
 import pytest
 import psycopg2
 from contextlib import contextmanager
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -101,7 +101,7 @@ def dummy_project(test_db: Session):
 
 @pytest.fixture()
 def test_project(dummy_project) -> Project:
-    today = date.today()
+    today = datetime.today()
     project: Project = dummy_project(
         name="Test Project",
         description="Test description",

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from sqlalchemy import String, Text, Date, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -11,6 +12,6 @@ class Project(Base):
 
     name: Mapped[str] = mapped_column(String(32), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
-    start_date: Mapped[str] = mapped_column(Date, nullable=False)
-    end_date: Mapped[str] = mapped_column(Date, nullable=False)
-    area_of_interest: Mapped[str] = mapped_column(JSON, nullable=False)
+    start_date: Mapped[datetime] = mapped_column(Date, nullable=False)
+    end_date: Mapped[datetime] = mapped_column(Date, nullable=False)
+    area_of_interest: Mapped[dict] = mapped_column(JSON, nullable=False)
