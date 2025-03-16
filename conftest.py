@@ -87,6 +87,12 @@ def client(override_get_db):
     return TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def clean_db(test_db):
+    test_db.query(Project).delete()
+    test_db.commit()
+
+
 @pytest.fixture()
 def dummy_project(test_db: Session):
     def create_dummy_project(*args, **kwargs):
@@ -99,7 +105,7 @@ def dummy_project(test_db: Session):
     return create_dummy_project
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def test_project(dummy_project) -> Project:
     today = datetime.today()
     project: Project = dummy_project(

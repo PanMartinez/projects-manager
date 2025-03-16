@@ -16,4 +16,4 @@ def http_error_handler(_: Request, exc: Exception) -> JSONResponse:
 
 
 class ErrorMessages:
-    pass
+    PROJECT_NOT_FOUND = "PROJECT_NOT_FOUND"

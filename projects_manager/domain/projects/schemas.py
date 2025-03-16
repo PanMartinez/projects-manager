@@ -26,7 +26,7 @@ class ProjectDetailsSchema(ProjectBase, OrmBaseModel):
 
 
 class ProjectListSchema(BaseModel):
-    items: List[ProjectDetailsSchema]
+    projects: List[ProjectDetailsSchema]
     total: int
 
 
