@@ -10,7 +10,7 @@ from projects_manager.domain.common.models import Base
 class Project(Base):
     __tablename__ = "projects"
 
-    name: Mapped[str] = mapped_column(String(32), nullable=False)
+    name: Mapped[str] = mapped_column(String(32), nullable=False, unique=True)
     description: Mapped[str] = mapped_column(Text, nullable=True)
     start_date: Mapped[datetime] = mapped_column(Date, nullable=False)
     end_date: Mapped[datetime] = mapped_column(Date, nullable=False)

@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any
 from pydantic import field_validator
 from pydantic import BaseModel, Field
 
@@ -46,11 +46,6 @@ class ProjectBase(BaseModel):
 
 class ProjectDetailsSchema(ProjectBase, OrmBaseModel):
     id: UUID
-
-
-class ProjectListSchema(BaseModel):
-    projects: List[ProjectDetailsSchema]
-    total: int
 
 
 class ProjectActionBase(ProjectBase):

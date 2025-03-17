@@ -99,8 +99,8 @@ def test_get_projects_list(client, test_project):
     assert response.status_code == 200
     response_data = response.json()
     assert response_data
-    assert response_data["projects"]
-    assert response_data["projects"][0]["id"] == str(test_project.id)
+    assert response_data["items"]
+    assert response_data["items"][0]["id"] == str(test_project.id)
     assert response.json()["total"] == 1
 
 

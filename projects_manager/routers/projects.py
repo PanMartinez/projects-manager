@@ -2,15 +2,16 @@ import logging
 
 from uuid import UUID
 from fastapi import APIRouter, Depends
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import select
 from sqlalchemy.orm import Session
-
 
 from projects_manager.config.dependencies import get_db
 from projects_manager.domain.projects.models import Project
 from projects_manager.domain.projects.services import get_project_by_id
 from projects_manager.domain.projects.schemas import (
     ProjectDetailsSchema,
-    ProjectListSchema,
     ProjectCreateSchema,
     ProjectUpdateSchema,
 )
@@ -42,15 +43,11 @@ async def create_project(
     return ProjectDetailsSchema.model_validate(new_project)
 
 
-@projects_router.get("/list", response_model=ProjectListSchema)
+@projects_router.get("/list", response_model=Page[ProjectDetailsSchema])
 async def list_projects(
     db: Session = Depends(get_db),
-) -> ProjectListSchema:
-    projects = db.query(Project).all()
-    return ProjectListSchema(
-        projects=[ProjectDetailsSchema.model_validate(project) for project in projects],
-        total=len(projects),
-    )
+) -> Page[ProjectDetailsSchema]:
+    return paginate(db, select(Project))
 
 
 @projects_router.get("/details/{project_id}", response_model=ProjectDetailsSchema)

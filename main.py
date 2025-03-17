@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_pagination import add_pagination
 
 from projects_manager.config.db import engine, SessionLocal
 from projects_manager.config.settings import get_settings
@@ -20,6 +21,7 @@ def get_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    add_pagination(application)
     return application
 
 
