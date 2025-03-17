@@ -7,6 +7,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from projects_manager.config.cache import InMemoryCache
 from projects_manager.config.dependencies import get_db
 from projects_manager.domain.projects.models import Project
 from projects_manager.domain.projects.services import get_project_by_id
@@ -23,6 +24,7 @@ projects_router = APIRouter(
 )
 
 logger = logging.getLogger(__name__)
+cache = InMemoryCache()
 
 
 @projects_router.post("/create", response_model=ProjectDetailsSchema)
@@ -55,8 +57,15 @@ async def get_project_details(
     project_id: UUID,
     db: Session = Depends(get_db),
 ) -> ProjectDetailsSchema:
+    cache_key = f"project_details:{project_id}"
+    cached_project = cache.get(cache_key)
+    if cached_project:
+        return cached_project
+
     project = await get_project_by_id(project_id, db)
-    return ProjectDetailsSchema.model_validate(project)
+    project_data = ProjectDetailsSchema.model_validate(project)
+    cache.set(cache_key, project_data)
+    return project_data
 
 
 @projects_router.patch("/update/{project_id}", response_model=ProjectDetailsSchema)
@@ -74,7 +83,10 @@ async def update_project(
     project.area_of_interest = project_data.area_of_interest.model_dump()
     db.commit()
     db.refresh(project)
-    return ProjectDetailsSchema.model_validate(project)
+
+    updated_project = ProjectDetailsSchema.model_validate(project)
+    cache.set(f"project_details:{project_id}", updated_project)
+    return updated_project
 
 
 @projects_router.delete("/delete/{project_id}")
@@ -82,3 +94,4 @@ async def delete_project(project_id: UUID, db: Session = Depends(get_db)):
     project = await get_project_by_id(project_id, db)
     db.delete(project)
     db.commit()
+    cache.clear(f"project_details:{project_id}")
