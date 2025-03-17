@@ -12,6 +12,29 @@ class AreaOfInterest(BaseModel):
     properties: Dict[str, Any] = {}
     geometry: Dict[str, Any]
 
+    @field_validator("geometry", mode="before")
+    @classmethod
+    def validate_geometry(cls, v):
+        if not isinstance(v, dict):
+            raise ValueError("geometry must be a dictionary")
+
+        if v.get("type") != "MultiPolygon":
+            raise ValueError("Only 'MultiPolygon' geometry type is allowed")
+
+        if "coordinates" not in v or not isinstance(v["coordinates"], list):
+            raise ValueError("geometry must contain a 'coordinates' list")
+
+        if not all(
+            isinstance(polygon, list)
+            and all(isinstance(area, list) and len(area) >= 4 for area in polygon)
+            for polygon in v["coordinates"]
+        ):
+            raise ValueError(
+                "Invalid 'MultiPolygon' structure. Each polygon must contain at least one area with 4+ points."
+            )
+
+        return v
+
 
 class ProjectBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=32)
@@ -33,7 +56,7 @@ class ProjectListSchema(BaseModel):
 class ProjectActionBase(ProjectBase):
     @field_validator("end_date", mode="before")
     @classmethod
-    def end_date_must_be_after_start_date(cls, v, values):
+    def validate_end_date(cls, v, values):
         values_data = values.data
 
         if "start_date" in values_data and v < values_data["start_date"].strftime(
