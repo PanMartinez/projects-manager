@@ -75,12 +75,17 @@ async def update_project(
     db: Session = Depends(get_db),
 ) -> ProjectDetailsSchema:
     project = await get_project_by_id(project_id, db)
-    project.name = project_data.name
-    if project_data.description:
+    if project_data.name is not None:
+        project.name = project_data.name
+    if project_data.description is not None:
         project.description = project_data.description
-    project.start_date = project_data.start_date
-    project.end_date = project_data.end_date
-    project.area_of_interest = project_data.area_of_interest.model_dump()
+    if project_data.start_date is not None:
+        project.start_date = project_data.start_date
+    if project_data.end_date is not None:
+        project.end_date = project_data.end_date
+    if project_data.area_of_interest is not None:
+        project.area_of_interest = project_data.area_of_interest.model_dump()
+
     db.commit()
     db.refresh(project)
 

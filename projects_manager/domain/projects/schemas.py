@@ -1,5 +1,5 @@
 from uuid import UUID
-from datetime import datetime
+from datetime import date
 from typing import Dict, Any
 from pydantic import field_validator
 from pydantic import BaseModel, Field
@@ -39,8 +39,8 @@ class AreaOfInterest(BaseModel):
 class ProjectBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=32)
     description: str | None = None
-    start_date: datetime
-    end_date: datetime
+    start_date: date
+    end_date: date
     area_of_interest: AreaOfInterest
 
 
@@ -48,7 +48,7 @@ class ProjectDetailsSchema(ProjectBase, OrmBaseModel):
     id: UUID
 
 
-class ProjectActionBase(ProjectBase):
+class ProjectCreateSchema(ProjectBase):
     @field_validator("end_date", mode="before")
     @classmethod
     def validate_end_date(cls, v, values):
@@ -61,9 +61,21 @@ class ProjectActionBase(ProjectBase):
         return v
 
 
-class ProjectCreateSchema(ProjectActionBase):
-    pass
+class ProjectUpdateSchema(BaseModel):
+    name: str | None = Field(None, min_length=1, max_length=32)
+    description: str | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    area_of_interest: AreaOfInterest | None = None
 
-
-class ProjectUpdateSchema(ProjectActionBase):
-    pass
+    @field_validator("end_date", mode="before")
+    @classmethod
+    def validate_end_date(cls, v, values):
+        values_data = values.data
+        if (
+            values_data["start_date"] is not None
+            and v
+            and v < values_data["start_date"].strftime("%Y-%m-%d")
+        ):
+            raise ValueError("end_date must be after start_date")
+        return v
