@@ -65,5 +65,5 @@ class ProjectCreateSchema(ProjectActionBase):
     pass
 
 
-class ProjectUpdateSchema(ProjectBase):
+class ProjectUpdateSchema(ProjectActionBase):
     pass

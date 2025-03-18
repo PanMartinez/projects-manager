@@ -4,13 +4,13 @@ from datetime import datetime, timedelta
 from data.samples import SAMPLE_GEOJSON
 
 
-@pytest.mark.parametrize(
-    "payload,expected_status",
-    [
+def get_projects_parameters(create: bool = True):
+    project_str = "New" if create else "Updated"
+    return [
         (
             {
-                "name": "New Project",
-                "description": "New Project Description",
+                "name": f"{project_str} Project",
+                "description": f"{project_str} Project Description",
                 "start_date": datetime.today().strftime("%Y-%m-%d"),
                 "end_date": (datetime.today() + timedelta(days=30)).strftime(
                     "%Y-%m-%d"
@@ -19,24 +19,12 @@ from data.samples import SAMPLE_GEOJSON
             },
             200,
         ),
-        (
-            {
-                "name": "New Project",
-                "description": "New Project Description",
-                "start_date": (datetime.today() + timedelta(days=30)).strftime(
-                    "%Y-%m-%d"
-                ),
-                "end_date": datetime.today().strftime("%Y-%m-%d"),
-                "area_of_interest": SAMPLE_GEOJSON,
-            },
-            422,
-        ),
         ({}, 422),
         ({"name": "Only Name"}, 422),
         (
             {
-                "name": "Test Project",
-                "description": "Invalid Date Test",
+                "name": f"{project_str} Project",
+                "description": f"{project_str} Project Invalid Date",
                 "start_date": (datetime.today() + timedelta(days=10)).strftime(
                     "%Y-%m-%d"
                 ),
@@ -47,8 +35,8 @@ from data.samples import SAMPLE_GEOJSON
         ),
         (
             {
-                "name": "Test Project",
-                "description": "Test description",
+                "name": f"{project_str} Project",
+                "description": f"{project_str} Project No Coordinates",
                 "start_date": datetime.today().strftime("%Y-%m-%d"),
                 "end_date": (datetime.today() + timedelta(days=30)).strftime(
                     "%Y-%m-%d"
@@ -66,8 +54,8 @@ from data.samples import SAMPLE_GEOJSON
         ),
         (
             {
-                "name": "Test Project",
-                "description": "Test description",
+                "name": f"{project_str} Project",
+                "description": f"{project_str} Project Invalid Coordinates",
                 "start_date": datetime.today().strftime("%Y-%m-%d"),
                 "end_date": (datetime.today() + timedelta(days=30)).strftime(
                     "%Y-%m-%d"
@@ -87,7 +75,12 @@ from data.samples import SAMPLE_GEOJSON
             },
             422,
         ),
-    ],
+    ]
+
+
+@pytest.mark.parametrize(
+    "payload,expected_status",
+    get_projects_parameters(create=True),
 )
 def test_create_project(client, payload, expected_status):
     response = client.post("/api/projects/create", json=payload)
@@ -118,22 +111,18 @@ def test_get_project_details__invalid_id(client, test_project):
     assert response.json()["detail"] == "PROJECT_NOT_FOUND"
 
 
-def test_update_project(client, test_project):
-    project_update_payload = {
-        "name": "Updated Project",
-        "description": "Updated Project Description",
-        "start_date": test_project.start_date.strftime("%Y-%m-%d"),
-        "end_date": (test_project.end_date + timedelta(days=30)).strftime("%Y-%m-%d"),
-        "area_of_interest": SAMPLE_GEOJSON,
-    }
-    response = client.patch(
-        f"/api/projects/update/{test_project.id}", json=project_update_payload
-    )
-    assert response.status_code == 200
-    response_data = response.json()
-    assert response_data
-    assert response_data["id"] == str(test_project.id)
-    assert response_data["name"] == "Updated Project"
+@pytest.mark.parametrize(
+    "payload,expected_status",
+    get_projects_parameters(create=False),
+)
+def test_update_project(client, test_project, payload, expected_status):
+    response = client.patch(f"/api/projects/update/{test_project.id}", json=payload)
+    assert response.status_code == expected_status
+    if expected_status == 200:
+        response_data = response.json()
+        assert response_data
+        assert response_data["id"] == str(test_project.id)
+        assert response_data["name"] == "Updated Project"
 
 
 def test_delete_project(client, test_project):
